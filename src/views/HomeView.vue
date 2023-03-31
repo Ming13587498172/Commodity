@@ -48,6 +48,7 @@ import { useRouter } from 'vue-router';
 
   const router = useRouter()
   const list = router.getRoutes().filter(item => item.meta.isShow)
+  
 
 </script>
 
