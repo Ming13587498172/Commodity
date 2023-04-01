@@ -24,11 +24,16 @@
 
 <script setup lang="ts">
 import { getGoodsList } from '@/api/goods';
-import { InitData } from '@/type/goods';
-import { computed, reactive } from 'vue';
+import { InitData, ListInt } from '@/type/goods';
+import { computed, reactive, watch, onMounted } from 'vue';
 
-// let { selectData, listData } = reactive(new InitData())
+// ========= 单方面使用可以，总体来说还有问题 ==================
+
 const data = reactive(new InitData())
+
+onMounted(() => {
+  getData()
+})
 
 // 获取商品列表数据
 const getData = async () => {
@@ -40,7 +45,6 @@ const getData = async () => {
     console.log(err)
   }
 }
-getData()
 
 // 分页
 const handleSize = (size: number) => {
@@ -59,9 +63,30 @@ const dataList = reactive({
 
 // 查询
 const onSubmit = () => {
-  console.log(data.selectData.title)
-  console.log(data.selectData.introduce)
+  let arr:ListInt[] = []
+  if(data.selectData.title || data.selectData.introduce) {
+    if(data.selectData.title) {
+      arr = data.listData.filter(item => {
+        return item.title.indexOf(data.selectData.title) !== -1
+      })
+    }
+    if(data.selectData.introduce) {
+      arr = data.listData.filter(item => {
+        return item.introduce.indexOf(data.selectData.introduce) !== -1
+      })
+    }
+  } else {
+    arr = data.listData
+  }
+  data.listData = arr
+  data.selectData.count = arr.length
 }
+
+watch([() => data.selectData.title, () => data.selectData.introduce], () => {
+  if(data.selectData.title === '' && data.selectData.introduce === '') {
+    getData()
+  }
+})
 
 
 </script>
