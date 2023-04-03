@@ -19,7 +19,7 @@
                 <el-dropdown-menu>
                   <el-dropdown-item>个人信息</el-dropdown-item>
                   <el-dropdown-item>更换头像</el-dropdown-item>
-                  <el-dropdown-item>退出登录</el-dropdown-item>
+                  <el-dropdown-item @click="handleQuit">退出登录</el-dropdown-item>
                 </el-dropdown-menu>
               </template>
             </el-dropdown>
@@ -28,8 +28,8 @@
       </el-header>
       <el-container>
         <el-aside width="200px">
-          <el-menu active-text-color="#ffd04b" background-color="#545c64" class="el-menu-vertical-demo" default-active="2"
-            text-color="#fff" router>
+          <el-menu active-text-color="#ffd04b" background-color="#545c64" class="el-menu-vertical-demo"
+            :default-active="active" text-color="#fff" router>
             <el-menu-item :index="item.path" v-for="item in list" :key="item.path">
               <span>{{ item.meta.title }}</span>
             </el-menu-item>
@@ -44,11 +44,36 @@
 </template>
 
 <script setup lang="ts">
-import { useRouter } from 'vue-router';
+import { ref } from 'vue'
+import { useRouter, useRoute } from 'vue-router';
+import { ElMessage, ElMessageBox } from 'element-plus'
 
-  const router = useRouter()
-  const list = router.getRoutes().filter(item => item.meta.isShow)
-  
+const router = useRouter()
+const list = router.getRoutes().filter(item => item.meta.isShow)
+const route = useRoute()
+const active = ref(route.path)
+
+// 退出
+const handleQuit = () => {
+  ElMessageBox.confirm(
+    '此操作用户将会登出, 是否继续?',
+    '提示',
+    {
+      confirmButtonText: '确定',
+      cancelButtonText: '取消',
+      type: 'warning',
+    }
+  )
+    .then(() => {
+      localStorage.removeItem('token')
+      router.push('/login')
+      ElMessage.success('退出成功!')
+    })
+    .catch(() => {
+      ElMessage.info('已取消退出')
+    })
+}
+
 
 </script>
 
@@ -80,6 +105,7 @@ import { useRouter } from 'vue-router';
   }
 
 }
+
 .el-aside {
   .el-menu {
     height: calc(100vh - 80px);
